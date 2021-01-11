@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import * as dao from './dao.js'
 
 const app = express();
 const httpSrv = http.Server(app);
@@ -17,9 +18,10 @@ app.post('/ping', function (req, res) {
 });
 app.get('/hello', hello);
 
-const messagesArray = [];
+// const messagesArray = [];
 
-const postMessages = (req, res) => {
+
+const postMessages = async (req, res) => {
     console.log('l\'utilisateur souhaite poster un message')
     const messageVar = req.param('message');
     const usernameVar = req.param('username');
@@ -36,8 +38,11 @@ const postMessages = (req, res) => {
     return;
     }
 
-    const validUser = usersArray.find(element => element.username === usernameVar);
-    console.log({validUser});
+    const usersArray = await dao.findDocuments("USERS", {});
+
+    const validUser = usersArray.find(element => element.user === usernameVar);
+    // console.log({validUser});
+    // console.log({usersArray});
     if(!validUser) {
         res.status(401).end("utilisateur inconnu");
         return;
@@ -49,19 +54,20 @@ const postMessages = (req, res) => {
         ts: ts
     }
 
-    messagesArray.push(myMessage);
+   await dao.insertDocument("MESSAGES", myMessage);
     res.status(201);
     res.send("message créé");
 }
 
-function getMessages (req, res) {
+const getMessages = async (req, res) => {
     console.log('get messages')
-    res.json(messagesArray);
+    const messages = await dao.findDocuments("MESSAGES", {});
+    res.json(messages);
 }
 
-const usersArray = [];
+// const usersArray = [];
 
-const postUsers = (req, res) => {
+const postUsers = async (req, res) => {
     console.log('nom et mot de passe de l\'utilisateur')
     const password = req.param('password');
     const userSignIn = req.param('username');
@@ -82,15 +88,15 @@ const postUsers = (req, res) => {
         password: password,
     }
 
-    usersArray.push(myUser);
+    await dao.insertDocument("USERS", myUser);
     res.status(201);
     res.send("user créé");
 }
 
-function getUsers (req, res) {
+const getUsers = async (req, res) => {
     console.log('get user')
-    const validUser = usersArray.map(element => {return {username: element.user}});
-    res.json(validUser);
+    const users = await dao.findDocuments("USERS", {});
+    res.json(users);
 }
 
 // façon alternative de rédiger cette fonction. 
