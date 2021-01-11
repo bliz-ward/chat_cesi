@@ -35,6 +35,14 @@ const postMessages = (req, res) => {
     res.status(400).end("username est vide");
     return;
     }
+
+    const validUser = usersArray.find(element => element.username === usernameVar);
+    console.log({validUser});
+    if(!validUser) {
+        res.status(401).end("utilisateur inconnu");
+        return;
+    }
+
         const myMessage = {
         message: messageVar,
         username: usernameVar,
