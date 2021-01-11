@@ -89,7 +89,8 @@ const postUsers = (req, res) => {
 
 function getUsers (req, res) {
     console.log('get user')
-    res.json(usersArray);
+    const validUser = usersArray.map(element => {return {username: element.user}});
+    res.json(validUser);
 }
 
 // façon alternative de rédiger cette fonction. 
